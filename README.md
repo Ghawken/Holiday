@@ -17,9 +17,9 @@ Double click plugin Bundle
 
 ## Plugin Config Settings Only
 
-![https://github.com/Ghawken/Holiday/blob/master/Images/PluginConfig.png?raw=true](https://github.com/Ghawken/Holiday/blob/master/Images/PluginConfig.png?raw=true)
+![https://github.com/Ghawken/Holiday/blob/main/Images/PluginConfig.png?raw=true](https://github.com/Ghawken/Holiday/blob/master/Images/PluginConfig.png?raw=true)
 
-![https://github.com/Ghawken/Holiday/blob/master/Images/countries.png?raw=true](https://github.com/Ghawken/Holiday/blob/master/Images/countries.png?raw=true)
+![https://github.com/Ghawken/Holiday/blob/main/Images/countries.png?raw=true](https://github.com/Ghawken/Holiday/blob/master/Images/countries.png?raw=true)
 
 #### Select Country and/or Region
 
