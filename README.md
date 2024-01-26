@@ -1,6 +1,6 @@
 # Holiday Plugin
 
-![https://github.com/Ghawken/Holiday/blob/master/Images/icon_256.png?raw=true](https://github.com/Ghawken/HomeKitLink-Siri/blob/master/Images/icon_256.png?raw=true)
+![https://github.com/Ghawken/Holiday/blob/main/Images/holiday.png?raw=true](https://github.com/Ghawken/Holiday/blob/master/Images/holiday.png?raw=true)
 
 This is a relatively simple plugin (well aren't they all?) which allows you to select country and region, and then will update a variable as to whether today or tomorrow is a Holiday
 

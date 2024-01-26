@@ -157,11 +157,11 @@ class Plugin(indigo.PluginBase):
         try:
             while True:
                 new_day_of_week = datetime.datetime.now().strftime("%A")
-                self.logger.debug(f"Server Day: {current_day}")
+                #self.logger.debug(f"Server Day: {current_day}")
                 if new_day_of_week != current_day:
                     self.update_holidays()
                     current_day = datetime.datetime.now().strftime("%A")
-                self.sleep(5)
+                self.sleep(60)
 
         except self.StopThread:
             pass  # Optionally catch the StopThread exception and do any needed cleanup.
@@ -268,4 +268,27 @@ class Plugin(indigo.PluginBase):
         return (True, values_dict)
 
     ########################################
+    def closedPrefsConfigUi(self, valuesDict, userCancelled):
+        self.debugLog(u"closedPrefsConfigUi() method called.")
 
+        if userCancelled:
+            self.debugLog(u"User prefs dialog cancelled.")
+
+        if not userCancelled:
+            self.debugLevel = valuesDict.get('showDebugLevel', "10")
+            self.debugLog(u"User prefs saved.")
+
+            #self.logger.error(str(valuesDict))
+
+            try:
+                self.logLevel = int(valuesDict[u"showDebugLevel"])
+            except:
+                self.logLevel = logging.INFO
+
+            self.indigo_log_handler.setLevel(self.logLevel)
+            self.logger.debug(u"logLevel = " + str(self.logLevel))
+            self.logger.debug(u"User prefs saved.")
+            self.logger.debug(u"Debugging on (Level: {0})".format(self.debugLevel))
+
+            self.debug1 = valuesDict.get('debug1', False)
+        return True
