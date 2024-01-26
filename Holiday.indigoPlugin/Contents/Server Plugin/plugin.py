@@ -173,7 +173,7 @@ class Plugin(indigo.PluginBase):
         current_datetime = datetime.datetime.now()
         # Extract the year as an integer
         current_year = current_datetime.year
-        if self.selected_region == "None":
+        if self.selected_region == "None" or self.selected_region == "":
             holidays = country_holidays(self.selected_country, subdiv=None, years=int(current_year))
         else:
             holidays = country_holidays(self.selected_country, subdiv=self.selected_region, years=int(current_year))
@@ -291,4 +291,7 @@ class Plugin(indigo.PluginBase):
             self.logger.debug(u"Debugging on (Level: {0})".format(self.debugLevel))
 
             self.debug1 = valuesDict.get('debug1', False)
+
+            if self.selected_country !="":
+                self.update_holidays()
         return True
