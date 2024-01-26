@@ -1,0 +1,2 @@
+holidays==0.41
+pycountry==23.12.11
