@@ -157,6 +157,7 @@ class Plugin(indigo.PluginBase):
             "11": "Big Sur",  # Just use the major version number for macOS 11+
             "12": "Monterey",
             "13": "Ventura",
+            "14": "Sonoma",
         }
         major_version_parts = version.split(".")
         # If the version is "11" or later, use only the first number as the key
@@ -237,7 +238,7 @@ class Plugin(indigo.PluginBase):
                 holidays = country_holidays(self.selected_country, subdiv=self.selected_region, categories=category_to_use, language=language_to_use,  years=int(current_year))
 
             a_country = pycountry.countries.get(alpha_2=str(self.selected_country))
-            self.logger.info(u"{0:=^130}".format(f" Holidays:  Country: {a_country.flag}{a_country.flag} {a_country.name} {a_country.flag}{a_country.flag}, Region: {self.selected_region}, Lang: {self.selected_lang}, Categories: {self.selected_category} "))
+            self.logger.info(u"{0:=^160}".format(f" Holidays:  Country: {a_country.flag}{a_country.flag} {a_country.name} {a_country.flag}{a_country.flag}, Region: {self.selected_region}, Lang: {self.selected_lang}, Categories: {category_to_use} "))
 
             for day in holidays.items():
                 actual_date, holiday_name = day
@@ -246,18 +247,20 @@ class Plugin(indigo.PluginBase):
             # Is today or tomorrow holiday
             today_holiday = date.today() in holidays
             tomorrow_holiday = (date.today() + datetime.timedelta(days=1)) in holidays
-            self.logger.info(u"{0:=^130}".format(" Check Today / Tomorrow  "))
+            self.logger.info(u"{0:=^160}".format(" Check Today / Tomorrow  "))
             self.logger.info(f"Is Today a Holiday: {today_holiday}")
             self.logger.info(f"Is Tomorrow a Holiday: {tomorrow_holiday}")
-            self.logger.info(u"{0:=^130}".format(""))
+            self.logger.info(u"{0:=^160}".format(""))
         except:
             self.logger.exception("Caught Exception with Show Holidays")
     def _get_category_tuple(self):
         # Check if `self.selected_category` is not empty
+        if self.selected_country =="":
+            self.logger.debug("No selected country, returning default.")
+            return ("public")
         if self.selected_category:
             # Split by comma, strip whitespace from each item, and filter out any empty strings
-            category_list = [item.strip() for item in self.selected_category.split(",") if item.strip()]
-            category_to_use = tuple(category_list)
+            category_to_use = tuple(item.strip() for item in self.selected_category if item.strip())
         else:
             # If `self.selected_category` is empty, return an public default tuple
             category_to_use = ("public")
@@ -282,18 +285,18 @@ class Plugin(indigo.PluginBase):
                 holidays = country_holidays(self.selected_country, subdiv=self.selected_region, categories=category_to_use, language=language_to_use, years=int(current_year))
 
             a_country = pycountry.countries.get(alpha_2=str(self.selected_country))
-            self.logger.info(u"{0:=^130}".format(f" Holidays:  Country: {a_country.flag}{a_country.flag} {a_country.name} {a_country.flag}{a_country.flag}, Region: {self.selected_region}, Lang: {self.selected_lang}, Categories: {self.selected_category} "))
+            self.logger.info(u"{0:=^160}".format(f" Holidays:  Country: {a_country.flag}{a_country.flag} {a_country.name} {a_country.flag}{a_country.flag}, Region: {self.selected_region}, Lang: {self.selected_lang}, Categories: {category_to_use} "))
 
             # Is today or tomorrow holiday
             today_holiday = date.today() in holidays
             tomorrow_holiday = (date.today() + datetime.timedelta(days=1)) in holidays
 
-            self.logger.info(u"{0:=^130}".format(" Check Today / Tomorrow  "))
+            self.logger.info(u"{0:=^160}".format(" Check Today / Tomorrow  "))
             self.logger.info(f"Is Today a Holiday: {today_holiday}")
             self.logger.info(f"Is Tomorrow a Holiday: {tomorrow_holiday}")
             self.updateVar("Holiday_Today", today_holiday)
             self.updateVar("Holiday_Tomorrow", tomorrow_holiday)
-            self.logger.info(u"{0:=^130}".format(" Variables Updated  "))
+            self.logger.info(u"{0:=^160}".format(" Variables Updated  "))
         except:
             self.logger.info("Error updating Holiday.  Please check selected countries/regions")
             self.logger.debug(f"Error updating", exc_info=True)
@@ -317,6 +320,11 @@ class Plugin(indigo.PluginBase):
         try:
             if self.debug1:
                 self.logger.debug(f"Lang List Generator {valuesDict}")
+
+            if self.selected_country == "":
+                self.logger.debug("Select Country first")
+                return ("No Country Selected", "No Country Selected")
+
             lang_list = []
             lang_list.append(("Default","Default" ) )
             list_codes = holidays.utils.list_localized_countries(include_aliases=False)
@@ -342,6 +350,11 @@ class Plugin(indigo.PluginBase):
     def category_list_generator(self, filter="", valuesDict=None, typeId="", targetId=0):  # (self, *args, **kwargs):
         try:
             self.logger.debug(f"Category List Generator {valuesDict=}")
+
+            if self.selected_country == "":
+                self.logger.debug("Select Country first")
+                return ("No Country Selected", "No Country Selected")
+
             current_datetime = datetime.datetime.now()
             current_year = current_datetime.year
             cat_list = []
@@ -357,6 +370,9 @@ class Plugin(indigo.PluginBase):
     def region_list_generator(self, filter="", valuesDict=None, typeId="", targetId=0):  # (self, *args, **kwargs):
         try:
             self.logger.debug(f"Region_list_Generator {valuesDict=}")
+            if self.selected_country == "":
+                self.logger.debug("Select Country first")
+                return ("No Country Selected", "No Country Selected")
             region_list = []
             region_list.append(("None","No Region" ) )
             list_codes = holidays.utils.list_supported_countries(include_aliases=False)
