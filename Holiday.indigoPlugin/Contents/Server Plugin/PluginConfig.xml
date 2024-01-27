@@ -20,6 +20,14 @@
         <CallbackMethod>select_region</CallbackMethod>
     </Field>
 
+    <Field id="language" type="menu" defaultValue="">
+        <Label>Select Language (if exists):</Label>
+        <List class="self" method="lang_list_generator" dynamicReload="true"/>
+        <CallbackMethod>select_lang</CallbackMethod>
+    </Field>
+
+    <Field id="country_long" type="textfield" defaultValue="" hidden="true">
+    </Field>
 
     <Field id="space10" type="label" alignText="right">
         <Label>Debugging Options:</Label>

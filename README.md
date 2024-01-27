@@ -42,6 +42,25 @@ Holiday                         =============================================== 
    Holiday                         Is Tomorrow a Holiday: False
    Holiday                         ================================================================  ================================================================
 ```
+eg.
+```
+   Holiday                         ========================================== Holidays:  Country NL, Region None, Lang nl  ==========================================
+   Holiday                         Nieuwjaarsdag is happening on Mon January 1 2024, which is -26 days away
+   Holiday                         Eerste paasdag is happening on Sun March 31 2024, which is 64 days away
+   Holiday                         Tweede paasdag is happening on Mon April 1 2024, which is 65 days away
+   Holiday                         Koningsdag is happening on Sat April 27 2024, which is 91 days away
+   Holiday                         Hemelvaartsdag is happening on Thu May 9 2024, which is 103 days away
+   Holiday                         Eerste Pinksterdag is happening on Sun May 19 2024, which is 113 days away
+   Holiday                         Tweede Pinksterdag is happening on Mon May 20 2024, which is 114 days away
+   Holiday                         Eerste Kerstdag is happening on Wed December 25 2024, which is 333 days away
+   Holiday                         Tweede Kerstdag is happening on Thu December 26 2024, which is 334 days away
+   Holiday                         ==================================================== Check Today / Tomorrow  =====================================================
+   Holiday                         Is Today a Holiday: False
+   Holiday                         Is Tomorrow a Holiday: False
+   Holiday                         ================================================================  ================================================================
+
+```
+
 Thats it.
 
 There will be a variable called
@@ -63,4 +82,4 @@ If Holiday_Today is false
 ## Check the holidays listed
 
 I have found that it is very good, but there is one 'Bank Holiday' it lists for me which isn't a 'public holiday'.  
-Was a bit slow to work that day when alarm didn't go off.... not completely sure anyone understand my excuse!
+Was a bit slow to work that day when alarm didn't go off.... not completely sure anyone understood my excuse!

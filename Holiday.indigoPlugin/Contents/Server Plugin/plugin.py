@@ -100,7 +100,7 @@ class Plugin(indigo.PluginBase):
 
         self.selected_region = plugin_prefs.get("region","")
         self.selected_country = plugin_prefs.get("country","")
-
+        self.selected_lang = plugin_prefs.get("language","")
         logging.getLogger("holidays").addHandler(self.plugin_file_handler)
 
         self.logger.info("{0:=^130}".format(" Initializing New Plugin Session "))
@@ -160,7 +160,7 @@ class Plugin(indigo.PluginBase):
                 #self.logger.debug(f"Server Day: {current_day}")
                 if new_day_of_week != current_day:
                     self.update_holidays()
-                    current_day = datetime.datetime.now().strftime("%A")
+                    current_day = new_day_of_week
                 self.sleep(60)
 
         except self.StopThread:
@@ -173,15 +173,21 @@ class Plugin(indigo.PluginBase):
         current_datetime = datetime.datetime.now()
         # Extract the year as an integer
         current_year = current_datetime.year
+
+        language_to_use = None
+        if self.selected_lang != "" or self.selected_lang != "Default":
+            language_to_use = self.selected_lang
+
         if self.selected_region == "None" or self.selected_region == "":
-            holidays = country_holidays(self.selected_country, subdiv=None, years=int(current_year))
+            holidays = country_holidays(self.selected_country, subdiv=None, language=language_to_use, years=int(current_year))
         else:
-            holidays = country_holidays(self.selected_country, subdiv=self.selected_region, years=int(current_year))
-        self.logger.info(u"{0:=^130}".format(f" Holidays:  Country {self.selected_country}, Region {self.selected_region}  "))
+            holidays = country_holidays(self.selected_country, subdiv=self.selected_region, language=language_to_use, years=int(current_year))
+
+        self.logger.info(u"{0:=^130}".format(f" Holidays:  Country {self.selected_country}, Region {self.selected_region}, Lang {self.selected_lang}  "))
 
         for day in holidays.items():
             actual_date, holiday_name = day
-            self.logger.info(f"{holiday_name} is happening on {actual_date}")
+            self.logger.info(f"{holiday_name} is happening on {actual_date.strftime('%a %B %-d %Y')}, which is {(actual_date - datetime.datetime.now().date()).days} days away")
 
         # Is today or tomorrow holiday
         today_holiday = date.today() in holidays
@@ -205,11 +211,13 @@ class Plugin(indigo.PluginBase):
             # Is today or tomorrow holiday
             today_holiday = date.today() in holidays
             tomorrow_holiday = (date.today() + datetime.timedelta(days=1)) in holidays
+            self.logger.info(u"{0:=^130}".format(f" Holidays:  Country: {self.selected_country}, Region: {self.selected_region}, Language: {self.selected_lang}  "))
             self.logger.info(u"{0:=^130}".format(" Check Today / Tomorrow  "))
             self.logger.info(f"Is Today a Holiday: {today_holiday}")
             self.logger.info(f"Is Tomorrow a Holiday: {tomorrow_holiday}")
             self.updateVar("Holiday_Today", today_holiday)
             self.updateVar("Holiday_Tomorrow", tomorrow_holiday)
+            self.logger.info(u"{0:=^130}".format(" Variables Updated  "))
         except:
             self.logger.info("Error updating Holiday.  Please check selected countries/regions")
             self.logger.debug(f"Error updating", exc_info=True)
@@ -229,6 +237,22 @@ class Plugin(indigo.PluginBase):
 
         except:
             self.logger.exception("")
+    def lang_list_generator(self, filter="", valuesDict=None, typeId="", targetId=0):  # (self, *args, **kwargs):
+        try:
+            self.logger.debug(f"Lang List Generator {valuesDict}")
+            lang_list = []
+            lang_list.append(("Default","Default" ) )
+            list_codes = holidays.utils.list_localized_countries(include_aliases=False)
+            for code, region in list_codes.items():
+                if str(valuesDict["country"]) == str(code):
+                    a_country = pycountry.countries.get(alpha_2=str(code))
+                    for reg in region:
+                        self.logger.debug(f"{reg}")
+                        lang_list.append( ( f"{reg}",f"{a_country.flag} {reg}") )
+            return lang_list
+
+        except:
+            self.logger.exception()
 
     def region_list_generator(self, filter="", valuesDict=None, typeId="", targetId=0):  # (self, *args, **kwargs):
         try:
@@ -242,7 +266,7 @@ class Plugin(indigo.PluginBase):
                     a_country = pycountry.countries.get(alpha_2=str(code))
                     for reg in region:
                         region_list.append( ( f"{reg}",f"{a_country.flag} {reg}") )
-                    return region_list
+            return region_list
 
         except:
             self.logger.exception()
@@ -252,6 +276,14 @@ class Plugin(indigo.PluginBase):
         self.logger.debug("Select Country Called and ValuesDict:\n{}".format(values_dict))
         self.selected_country = values_dict["country"]
         self.selected_region = values_dict['region']
+        return values_dict
+
+    def select_lang(self, values_dict, type_id="", dev_id=None):
+        self.logger.debug(u"select_region")
+        self.logger.debug("Select Device Called and ValuesDict:\n{}".format(values_dict))
+        self.selected_country = values_dict["country"]
+        self.selected_region = values_dict['region']
+        self.selected_lang = values_dict['language']
         return values_dict
 
     def select_region(self, values_dict, type_id="", dev_id=None):
