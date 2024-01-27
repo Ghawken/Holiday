@@ -23,20 +23,29 @@ Double click plugin Bundle
 
 #### Select Country and/or Region
 
+Go to Plugin Config
+
+Select Country, Region, language and/or categories of holidays (beware some of these are 'public' holidays which is default)
+
+Press log Holidays to see what holidays are registered, recorded for checking
+
 To check Holidays that plugin is aware of can run Menu item
 Log all Holidays once these details are selected.
 
 eg.
 ``` 
-Holiday                         =============================================== Holidays:  Country GB, Region ENG  ===============================================
-   Holiday                         Good Friday is happening on 2024-03-29
-   Holiday                         May Day is happening on 2024-05-06
-   Holiday                         Spring Bank Holiday is happening on 2024-05-27
-   Holiday                         New Year's Day is happening on 2024-01-01
-   Holiday                         Christmas Day is happening on 2024-12-25
-   Holiday                         Boxing Day is happening on 2024-12-26
-   Holiday                         Easter Monday is happening on 2024-04-01
-   Holiday                         Late Summer Bank Holiday is happening on 2024-08-26
+   Holiday                         =================== Holidays:  Country: 🇳🇿🇳🇿 New Zealand 🇳🇿🇳🇿, Region: None, Lang: Default, Categories: public ===================
+   Holiday                         New Year's Day is happening on Mon January 1 2024, which is -26 days away
+   Holiday                         Day after New Year's Day is happening on Tue January 2 2024, which is -25 days away
+   Holiday                         Waitangi Day is happening on Tue February 6 2024, which is 10 days away
+   Holiday                         Anzac Day is happening on Thu April 25 2024, which is 89 days away
+   Holiday                         Good Friday is happening on Fri March 29 2024, which is 62 days away
+   Holiday                         Easter Monday is happening on Mon April 1 2024, which is 65 days away
+   Holiday                         King's Birthday is happening on Mon June 3 2024, which is 128 days away
+   Holiday                         Matariki is happening on Fri June 28 2024, which is 153 days away
+   Holiday                         Labour Day is happening on Mon October 28 2024, which is 275 days away
+   Holiday                         Christmas Day is happening on Wed December 25 2024, which is 333 days away
+   Holiday                         Boxing Day is happening on Thu December 26 2024, which is 334 days away
    Holiday                         ==================================================== Check Today / Tomorrow  =====================================================
    Holiday                         Is Today a Holiday: False
    Holiday                         Is Tomorrow a Holiday: False
@@ -44,7 +53,9 @@ Holiday                         =============================================== 
 ```
 eg.
 ```
-   Holiday                         ========================================== Holidays:  Country NL, Region None, Lang nl  ==========================================
+   Holiday                         ============== Holidays:  Country: 🇳🇱🇳🇱 Netherlands 🇳🇱🇳🇱, Region: None, Lang: Default, Categories: optional, public ==============
+   Holiday                         Goede Vrijdag is happening on Fri March 29 2024, which is 62 days away
+   Holiday                         Bevrijdingsdag is happening on Sun May 5 2024, which is 99 days away
    Holiday                         Nieuwjaarsdag is happening on Mon January 1 2024, which is -26 days away
    Holiday                         Eerste paasdag is happening on Sun March 31 2024, which is 64 days away
    Holiday                         Tweede paasdag is happening on Mon April 1 2024, which is 65 days away
@@ -58,7 +69,6 @@ eg.
    Holiday                         Is Today a Holiday: False
    Holiday                         Is Tomorrow a Holiday: False
    Holiday                         ================================================================  ================================================================
-
 ```
 
 Thats it.

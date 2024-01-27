@@ -26,8 +26,27 @@
         <CallbackMethod>select_lang</CallbackMethod>
     </Field>
 
+    <Field id="category" type="list" defaultValue="">
+        <Label>Select Category (if exists):</Label>
+        <List class="self" method="category_list_generator" dynamicReload="true"/>
+        <CallbackMethod>select_category</CallbackMethod>
+    </Field>
+
     <Field id="country_long" type="textfield" defaultValue="" hidden="true">
     </Field>
+
+          <Field id="showHolidays"
+				   type="button"
+				   tooltip="Click on this button to Show Logging of Holidays Cameras"
+                  >
+				<Label>Log Holidays</Label>
+				<Title>Log Holidays</Title>
+				<CallbackMethod>log_holidays</CallbackMethod>
+	</Field>
+    <Field id="label2c2" type="label" fontSize="small" fontColor="black" >
+    <Label>
+       Show in the Log Holidays for selected regions, country etc. </Label>
+          </Field>
 
     <Field id="space10" type="label" alignText="right">
         <Label>Debugging Options:</Label>
@@ -36,7 +55,7 @@
     <Field id="space11" type="label" fontSize="small">
         <Label>Turn on debugging only when needed. Be careful when posting the output to the forums or other public places as it could expose sensitive information.</Label>
     </Field>
-    <Field id="debug1" type="checkbox" tooltip="Enabling will result in verbose logging of IP150 connection.">
+    <Field id="debug1" type="checkbox" tooltip="">
         <Label/>
         <Description>1. Debug 1</Description>
     </Field>
