@@ -1,9 +1,6 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 ####################
-# Copyright (c) 2022, Perceptive Automation, LLC. All rights reserved.
-# https://www.indigodomo.com
-
 import indigo
 installation_output = ""
 try:
@@ -12,27 +9,17 @@ try:
 except:
     pass
 
-
 import logging
-import os
-import sys
-import time
 import holidays
-import subprocess
+
 from holidays import country_holidays
 import pycountry
 import traceback
 import platform
-import time as t
-import platform
 import sys
-import os
 from os import path
 import datetime
 from datetime import date
-
-# Note the "indigo" module is automatically imported and made available inside
-# our global name space by the host process.
 
 ################################################################################
 # New Indigo Log Handler - display more useful info when debug logging
@@ -120,8 +107,6 @@ class Plugin(indigo.PluginBase):
             self.logger.debug(f"Holidays Updated:\n{installation_output}")
 
         system_version, product_version, longer_name = self.get_macos_version()
-
-
         self.logger.info("{0:=^130}".format(f" Initializing New Plugin Session for Plugin: {plugin_display_name} "))
         self.logger.info("{0:<30} {1}".format("Plugin name:", plugin_display_name))
         self.logger.info("{0:<30} {1}".format("Plugin version:", plugin_version))
@@ -140,7 +125,6 @@ class Plugin(indigo.PluginBase):
 
     ########################################
     def get_macos_version(self):
-        # Using platform module to get macOS version
         try:
             version, _, _ = platform.mac_ver()
             longer_version = platform.platform()
@@ -181,7 +165,6 @@ class Plugin(indigo.PluginBase):
         # For macOS "10.x" versions, use the first two numbers as the key
         else:
             major_version = ".".join(major_version_parts[:2])
-
         self.logger.debug(f"Major Version== {major_version}")
         return versions.get(major_version, f"Unknown macOS version for {version}")
 
@@ -220,12 +203,11 @@ class Plugin(indigo.PluginBase):
         """
         self.logger.debug(f"Run Concurrent Loop Called")
         current_day = datetime.datetime.now().strftime("%A")
-        if self.selected_region != "" and self.selected_region != "":
+        if self.selected_country != "" and self.selected_region != "":
             self.update_holidays()
         try:
             while True:
                 new_day_of_week = datetime.datetime.now().strftime("%A")
-                #self.logger.debug(f"Server Day: {current_day}")
                 if new_day_of_week != current_day:
                     self.update_holidays()
                     current_day = new_day_of_week
@@ -238,37 +220,38 @@ class Plugin(indigo.PluginBase):
 
     def show_holidays(self, *args, **kwargs):
         self.logger.debug(f"show_holidays called. {self.selected_region=} {self.selected_country=} {self.selected_category=} {self.selected_lang=}")
-        current_datetime = datetime.datetime.now()
-        # Extract the year as an integer
-        current_year = current_datetime.year
+        try:
+            current_datetime = datetime.datetime.now()
+            current_year = current_datetime.year
 
-        language_to_use = None
-        if self.selected_lang != "" or self.selected_lang != "Default":
-            language_to_use = self.selected_lang
+            language_to_use = None
+            if self.selected_lang != "" or self.selected_lang != "Default":
+                language_to_use = self.selected_lang
 
-        category_to_use= self._get_category_tuple()
-        self.logger.debug(f"Using Category {category_to_use}")
+            category_to_use= self._get_category_tuple()
+            self.logger.debug(f"Using Category {category_to_use}")
 
-        if self.selected_region == "None" or self.selected_region == "":
-            holidays = country_holidays(self.selected_country, subdiv=None, categories=category_to_use, language=language_to_use, years=int(current_year))
-        else:
-            holidays = country_holidays(self.selected_country, subdiv=self.selected_region, categories=category_to_use, language=language_to_use,  years=int(current_year))
+            if self.selected_region == "None" or self.selected_region == "":
+                holidays = country_holidays(self.selected_country, subdiv=None, categories=category_to_use, language=language_to_use, years=int(current_year))
+            else:
+                holidays = country_holidays(self.selected_country, subdiv=self.selected_region, categories=category_to_use, language=language_to_use,  years=int(current_year))
 
-        a_country = pycountry.countries.get(alpha_2=str(self.selected_country))
-        self.logger.info(u"{0:=^130}".format(f" Holidays:  Country: {a_country.flag}{a_country.flag} {a_country.name} {a_country.flag}{a_country.flag}, Region: {self.selected_region}, Lang: {self.selected_lang}, Categories: {self.selected_category} "))
+            a_country = pycountry.countries.get(alpha_2=str(self.selected_country))
+            self.logger.info(u"{0:=^130}".format(f" Holidays:  Country: {a_country.flag}{a_country.flag} {a_country.name} {a_country.flag}{a_country.flag}, Region: {self.selected_region}, Lang: {self.selected_lang}, Categories: {self.selected_category} "))
 
-        for day in holidays.items():
-            actual_date, holiday_name = day
-            self.logger.info(f"{holiday_name} is happening on {actual_date.strftime('%a %B %-d %Y')}, which is {(actual_date - datetime.datetime.now().date()).days} days away")
+            for day in holidays.items():
+                actual_date, holiday_name = day
+                self.logger.info(f"{holiday_name} is happening on {actual_date.strftime('%a %B %-d %Y')}, which is {(actual_date - datetime.datetime.now().date()).days} days away")
 
-        # Is today or tomorrow holiday
-        today_holiday = date.today() in holidays
-        tomorrow_holiday = (date.today() + datetime.timedelta(days=1)) in holidays
-        self.logger.info(u"{0:=^130}".format(" Check Today / Tomorrow  "))
-        self.logger.info(f"Is Today a Holiday: {today_holiday}")
-        self.logger.info(f"Is Tomorrow a Holiday: {tomorrow_holiday}")
-        self.logger.info(u"{0:=^130}".format("  "))
-
+            # Is today or tomorrow holiday
+            today_holiday = date.today() in holidays
+            tomorrow_holiday = (date.today() + datetime.timedelta(days=1)) in holidays
+            self.logger.info(u"{0:=^130}".format(" Check Today / Tomorrow  "))
+            self.logger.info(f"Is Today a Holiday: {today_holiday}")
+            self.logger.info(f"Is Tomorrow a Holiday: {tomorrow_holiday}")
+            self.logger.info(u"{0:=^130}".format(""))
+        except:
+            self.logger.exception("Caught Exception with Show Holidays")
     def _get_category_tuple(self):
         # Check if `self.selected_category` is not empty
         if self.selected_category:
@@ -276,13 +259,12 @@ class Plugin(indigo.PluginBase):
             category_list = [item.strip() for item in self.selected_category.split(",") if item.strip()]
             category_to_use = tuple(category_list)
         else:
-            # If `self.selected_category` is empty, return an empty tuple
+            # If `self.selected_category` is empty, return an public default tuple
             category_to_use = ("public")
         return category_to_use
 
     def update_holidays(self, *args, **kwargs):
         try:
-
             self.logger.debug(f"update_holidays called.{self.selected_region=} {self.selected_country=} ")
             current_datetime = datetime.datetime.now()
             # Extract the year as an integer
