@@ -80,6 +80,23 @@ in folder Holidays
 
 This will be updated once a day/and/or on startup or any issues.
 
+## Action Group
+
+Enables forcing Holiday Today or Holiday Tomorrow to True or False, or return to Library default settings.  This overrides the library settings.
+
+This is saved, and survives Indigo or Plugin restarts.  So to reset rerun the action setting as needed.
+
+Setting Holiday tomorrow to True, sets the variable Holiday_tomorrow to true, at midnight Holiday_tomorrow becomes false, and Holiday_today is then 
+also forced true.  Another day passes and they are both negative (if no real holiday)
+
+### Usage:
+Ideally would suggest Force Holiday tomorrow is used day before actual holiday so triggers early in day are caught
+eg.
+Button press for temporary holiday, at midnight Holiday_Today becomes true and if using for scheduled alarm - then appropriate morning routine not triggered.
+
+
+
+
 ## Usage
 
 As a conditional trigger for schedules etc. to run
