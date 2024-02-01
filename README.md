@@ -97,6 +97,7 @@ Button press for temporary holiday, at midnight Holiday_Today becomes true and i
 
 
 
+
 ## Usage
 
 As a conditional trigger for schedules etc. to run
