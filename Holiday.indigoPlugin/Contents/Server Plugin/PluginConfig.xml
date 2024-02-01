@@ -1,13 +1,14 @@
 <?xml version="1.0"?>
 <PluginConfig>
-    <Field id="infoLabel0" type="label" fontSize='large' fontColor="black">
+    <Field id="infoLabel0" type="label" fontSize='large' fontColor="blue">
         <Field id="sep7c" type="separator"/>
 
-        <Label>Holidays  Indigo Plugin</Label>
+        <Label>Holidays Indigo Plugin</Label>
     </Field>
-    <Field id="space0" type="label" fontColor="black">
+    <Field id="space0" type="label" fontColor="blue">
         <Label>Developed by: GlennNZ</Label>
     </Field>
+        <Field id="spaced_new_sep7c" type="separator"/>
     <Field id="country" type="menu" defaultValue="">
         <Label>Select Country:</Label>
         <List class="self" method="country_list_generator" dynamicReload="true"/>
@@ -34,7 +35,7 @@
 
     <Field id="country_long" type="textfield" defaultValue="" hidden="true">
     </Field>
-
+        <Field id="sepa7c" type="separator"/>
           <Field id="showHolidays"
 				   type="button"
 				   tooltip="Click on this button to Show Logging of Holidays Cameras"
@@ -43,16 +44,33 @@
 				<Title>Log Holidays</Title>
 				<CallbackMethod>log_holidays</CallbackMethod>
 	</Field>
-    <Field id="label2c2" type="label" fontSize="small" fontColor="black" >
-    <Label>
-       Show in the Log Holidays for selected regions, country etc. </Label>
+    <Field id="label2c2" type="label" fontSize="small" fontColor="blue" >
+    <Label>Output to the Log, all known Holidays for selected regions, country for current year. </Label>
           </Field>
+        <Field id="sep7eeaac" type="separator"/>
+
+        <Field id="holiday_tomorrow" type="textfield" defaultValue="default" hidden="true" tooltip="">
+            <Label>Tomorrow is manually set as holiday: </Label>
+    </Field>
+        <Field id="spaced2e311" type="label" fontSize="small" hidden="true" fontColor="blue">
+        <Label>Manually set tomorrow as Holiday.
+Main use is via Action Group to do same.  Resets after midnight.</Label>
+    </Field>
+            <Field id="holiday_today" type="textfield" defaultValue="default" hidden="true">
+            <Label>Today is manually set as holiday: </Label>
+    </Field>
+        <Field id="spaced2ea311" type="label" fontSize="small" hidden="true" fontColor="blue">
+        <Label>Manually set Today as Holiday.
+Main use is via Action Group to do same.  Resets after midnight.</Label>
+    </Field>
+
+        <Field id="se122p7c" type="separator"/>
 
     <Field id="space10" type="label" alignText="right">
         <Label>Debugging Options:</Label>
     </Field>
     <Field id="sep4" type="separator"/>
-    <Field id="space11" type="label" fontSize="small">
+    <Field id="space11" type="label" fontSize="small" fontColor="blue">
         <Label>Turn on debugging only when needed. Be careful when posting the output to the forums or other public places as it could expose sensitive information.</Label>
     </Field>
     <Field id="debug1" type="checkbox" tooltip="">
@@ -64,6 +82,7 @@
         <Label/>
         <Description>2. Debug 2</Description>
     </Field>
+
 
     <Field id="sep7a2e" type="separator"/>
     <Field id="showDebugLevel" type="menu" defaultValue="20" tooltip="Controls the amount of debug information written to the log.">

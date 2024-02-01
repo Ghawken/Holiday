@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<Actions>
+ <Action id="mark_holiday">
+        <Name>Holiday Tomorrow Manual Setting</Name>
+        <CallbackMethod>holiday_tomorrow</CallbackMethod>
+     <ConfigUI>
+     <Field type="menu" id="holiday_tomorrow" defaultValue="default">
+                <Label>Holiday Tomorrow: </Label>
+                      <List>
+                            <Option value="default">Default to Library.  Reset any change.</Option>
+                            <Option value="false">Force False</Option>
+                            <Option value="true">Force True</Option>
+                    </List>
+            </Field></ConfigUI>
+    </Action>
+     <Action id="mark_holiday_today">
+        <Name>Holiday Today Manual Setting</Name>
+        <CallbackMethod>holiday_now</CallbackMethod>
+         <ConfigUI>
+             <Field type="menu" id="holiday_today" defaultValue="default">
+                <Label>Holiday Today: </Label>
+                      <List>
+                            <Option value="default">Default to Library</Option>
+                            <Option value="false">Force False</Option>
+                            <Option value="true">Force True</Option>
+                    </List>
+            </Field>
+             <Field id="labela2c2" type="label" fontSize="small" fontColor="blue" >
+    <Label>NB: Plugin checks known holidays just after Midnight, so if manually setting dates would suggest >12:30am, otherwise risks being reset at that time.  </Label>
+          </Field>
+         </ConfigUI>
+    </Action>
+
+</Actions>
+

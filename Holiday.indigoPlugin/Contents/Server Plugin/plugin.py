@@ -121,6 +121,9 @@ class Plugin(indigo.PluginBase):
 
         self.debug1 = self.pluginPrefs.get('debug1', False)
         self.debug2 = self.pluginPrefs.get('debug2', False)
+        self.is_holiday_tomorrow_manual = self.pluginPrefs.get("holiday_tomorrow","default")
+        self.is_holiday_today_manual = self.pluginPrefs.get("holiday_today","default")
+
         self.logger.info(u"{0:=^130}".format(" End Initializing New Plugin  "))
 
     ########################################
@@ -176,7 +179,7 @@ class Plugin(indigo.PluginBase):
         self.logger.debug("shutdown called")
 
         ########################################
-    def updateVar(self, name, value):
+    def updateVar(self, name, value, lowercase):
         self.logger.debug(u'updatevar run.')
         if not ('Holiday' in indigo.variables.folders):
             # create folder
@@ -186,9 +189,15 @@ class Plugin(indigo.PluginBase):
             folder = indigo.variables.folders.getId('Holiday')
 
         if name not in indigo.variables:
-            NewVar = indigo.variable.create(name, value=str(value).lower(), folder=folder)
+            if lowercase:
+                NewVar = indigo.variable.create(name, value=str(value).lower(), folder=folder)
+            else:
+                NewVar = indigo.variable.create(name, value=str(value), folder=folder)
         else:
-            indigo.variable.updateValue(name, str(value).lower())
+            if lowercase:
+                indigo.variable.updateValue(name, str(value).lower())
+            else:
+                indigo.variable.updateValue(name, str(value))
         return
 
     def runConcurrentThread(self: indigo.PluginBase) -> None:
@@ -205,12 +214,12 @@ class Plugin(indigo.PluginBase):
         self.logger.debug(f"Run Concurrent Loop Called")
         current_day = datetime.datetime.now().strftime("%A")
         if self.selected_country != "" and self.selected_region != "":
-            self.update_holidays()
+            self.update_holidays(False)
         try:
             while True:
                 new_day_of_week = datetime.datetime.now().strftime("%A")
                 if new_day_of_week != current_day:
-                    self.update_holidays()
+                    self.update_holidays(True)
                     current_day = new_day_of_week
                 self.sleep(60)
 
@@ -218,7 +227,37 @@ class Plugin(indigo.PluginBase):
             pass  # Optionally catch the StopThread exception and do any needed cleanup.
 
     ########################################
+    def holiday_tomorrow(self, action):
+        if self.debug1:
+            self.debugLog(f"Holiday Tomorrow to be set..{action}")
 
+        holiday_tomorrow = action.props.get("holiday_tomorrow", "default")
+        self.logger.debug(f"{holiday_tomorrow }")
+
+        self.logger.debug(f"Holiday tomorrow current state = {self.is_holiday_tomorrow_manual}, and saving to pluginPrefs for restart protection")
+        self.pluginPrefs['holiday_tomorrow'] = holiday_tomorrow
+
+        self.is_holiday_tomorrow_manual = holiday_tomorrow  ## strings = default, true, or false
+
+        self.logger.debug(f"Now Holiday tomorrow current state= {self.is_holiday_tomorrow_manual}")
+
+        self.update_holidays(False)  ## force update and do logic there having set is_holiday_tomorrow_manual to string
+
+
+    def holiday_now(self, action):
+        if self.debug1:
+            self.debugLog(f"Holiday Today to be set..{action}")
+        holiday_today = action.props.get("holiday_today", "default")
+        self.logger.debug(f"{holiday_today}")
+        self.logger.debug(f"Holiday today current state = {self.is_holiday_today_manual}, and saving to pluginPrefs for restart protection")
+        self.pluginPrefs['holiday_today'] = holiday_today
+        self.is_holiday_today_manual = holiday_today  ## strings = default, true, or false
+        self.logger.debug(f"Now Holiday tomorrow current state= {self.is_holiday_today_manual}")
+        self.update_holidays(False)  ## force update and do logic there having set is_holiday_tomorrow_manual to string
+
+    def midnight_reset(self, *args, **kwargs):
+        self.logger.debug(f"Midnight Reset")
+        self.update_holidays(True)
     def show_holidays(self, *args, **kwargs):
         self.logger.debug(f"show_holidays called. {self.selected_region=} {self.selected_country=} {self.selected_category=} {self.selected_lang=}")
         try:
@@ -240,17 +279,45 @@ class Plugin(indigo.PluginBase):
             a_country = pycountry.countries.get(alpha_2=str(self.selected_country))
             self.logger.info(u"{0:=^160}".format(f" Holidays:  Country: {a_country.flag}{a_country.flag} {a_country.name} {a_country.flag}{a_country.flag}, Region: {self.selected_region}, Lang: {self.selected_lang}, Categories: {category_to_use} "))
 
-            for day in holidays.items():
+            holiday_list = [(date, name) for date, name in holidays.items()]
+            # Sort the holiday list by date
+            holiday_list.sort(key=lambda x: x[0])
+
+            for day in holiday_list:
                 actual_date, holiday_name = day
                 self.logger.info(f"{holiday_name} is happening on {actual_date.strftime('%a %B %-d %Y')}, which is {(actual_date - datetime.datetime.now().date()).days} days away")
 
             # Is today or tomorrow holiday
-            today_holiday = date.today() in holidays
-            tomorrow_holiday = (date.today() + datetime.timedelta(days=1)) in holidays
+
+            date_using = date.today()
+            #date_using= datetime.date(2024,1,26)
+
+            today_holiday = date_using in holidays
+            tomorrow_holiday = (date_using + datetime.timedelta(days=1)) in holidays
+            today_holiday_name = holidays.get(date_using)
+            tomorrow_holiday_name = holidays.get((date_using + datetime.timedelta(days=1)))
+
             self.logger.info(u"{0:=^160}".format(" Check Today / Tomorrow  "))
-            self.logger.info(f"Is Today a Holiday: {today_holiday}")
-            self.logger.info(f"Is Tomorrow a Holiday: {tomorrow_holiday}")
+            self.logger.info(f"Is known Holiday today?: {today_holiday}" + (f" Holiday is: {today_holiday_name}" if today_holiday else "") )
+            self.logger.info(f"Is known Holiday Tomorrow?: {tomorrow_holiday}"+ (f" Holiday is: {tomorrow_holiday_name}" if tomorrow_holiday else "") )
+            self.logger.debug(f"Holiday_tomorrow set: {self.is_holiday_tomorrow_manual}")
+            if self.is_holiday_tomorrow_manual =="true":
+                self.logger.info(f"Holiday tomorrow is set to Force True. (Will be actioned at Midnight, with Holiday_today variable set to True after that time)")
+            elif self.is_holiday_tomorrow_manual == "false":
+                self.logger.info(f"Holiday tomorrow is set to Force False. (Will be actioned at Midnight, with Holiday_today variable set to False after that time)")
+            elif self.is_holiday_tomorrow_manual == "default":
+                self.logger.debug(f"Holiday tomorrow has not overrides set.  As above will apply")
+            if self.is_holiday_today_manual == "true":
+                self.logger.info(f"Holiday today is is set to Force True for today/now.  Will be reset to default at midnight")
+            elif self.is_holiday_today_manual == "false":
+                self.logger.info(f"Holiday today is is set to Force False for today/now.  Will be reset to default at midnight")
+            elif self.is_holiday_today_manual == "default":
+                self.logger.debug(f"Holiday today has not overrides set.  As above will apply")
+
+            if self.is_holiday_today_manual !="default" or self.is_holiday_tomorrow_manual != "default":
+                self.logger.info(f"NB: This manual setting will survive restarts of Plugin.  To change action Action group.")
             self.logger.info(u"{0:=^160}".format(""))
+
         except:
             self.logger.exception("Caught Exception with Show Holidays")
     def _get_category_tuple(self):
@@ -266,10 +333,13 @@ class Plugin(indigo.PluginBase):
             category_to_use = ("public")
         return category_to_use
 
-    def update_holidays(self, *args, **kwargs):
+    def update_holidays(self, called_midnight, *args, **kwargs):
         try:
             self.logger.debug(f"update_holidays called.{self.selected_region=} {self.selected_country=} ")
+            self.logger.debug(f"And its Midnight: {called_midnight=}")
+            self.logger.debug(f"And our Manual settings: {self.is_holiday_today_manual=} {self.is_holiday_tomorrow_manual=}")
             current_datetime = datetime.datetime.now()
+
             # Extract the year as an integer
             current_year = current_datetime.year
             language_to_use = None
@@ -287,15 +357,72 @@ class Plugin(indigo.PluginBase):
             a_country = pycountry.countries.get(alpha_2=str(self.selected_country))
             self.logger.info(u"{0:=^160}".format(f" Holidays:  Country: {a_country.flag}{a_country.flag} {a_country.name} {a_country.flag}{a_country.flag}, Region: {self.selected_region}, Lang: {self.selected_lang}, Categories: {category_to_use} "))
 
-            # Is today or tomorrow holiday
-            today_holiday = date.today() in holidays
-            tomorrow_holiday = (date.today() + datetime.timedelta(days=1)) in holidays
+            date_using = date.today()
+           #date_using= datetime.date(2024,1,26)
+            today_holiday = date_using in holidays
+            tomorrow_holiday = (date_using + datetime.timedelta(days=1)) in holidays
+            today_holiday_name = holidays.get(date_using)
+            tomorrow_holiday_name = holidays.get((date_using + datetime.timedelta(days=1)))
 
             self.logger.info(u"{0:=^160}".format(" Check Today / Tomorrow  "))
-            self.logger.info(f"Is Today a Holiday: {today_holiday}")
-            self.logger.info(f"Is Tomorrow a Holiday: {tomorrow_holiday}")
-            self.updateVar("Holiday_Today", today_holiday)
-            self.updateVar("Holiday_Tomorrow", tomorrow_holiday)
+            self.logger.info(f"Is known Holiday today?: {today_holiday}" + (f" Holiday is: {today_holiday_name}" if today_holiday else "") )
+            self.logger.info(f"Is known Holiday Tomorrow?: {tomorrow_holiday}" + (f" Holiday is: {tomorrow_holiday_name}" if tomorrow_holiday else "") )
+
+            if called_midnight:
+                self.logger.debug(f"Update Holidays at Midnight or thereabouts once a day called")
+                if self.is_holiday_today_manual != "default":
+                    self.logger.debug(f"Now midnight resetting Holiday today, before setting based on tomorrow prior setting")
+                    self.pluginPrefs['holiday_today'] = "default"
+                    self.is_holiday_today_manual = "default"
+                if self.is_holiday_tomorrow_manual == "default":
+                    ## now is next day
+                    self.pluginPrefs['holiday_today']="default"
+                    self.is_holiday_today_manual = "default"
+                    self.logger.debug(f"Resetting todays holiday state as Today has ended.")
+                elif self.is_holiday_tomorrow_manual == "true":
+                    self.logger.debug(f"Manually setting holiday for today, as tomorrow was force.  And setting force holiday or today to true.")
+                    today_holiday = True
+                    self.is_holiday_tomorrow_manual = "default"
+                    self.is_holiday_today_manual = "true"
+                    self.pluginPrefs['holiday_tomorrow'] = "default"
+                    self.pluginPrefs['holiday_today'] = 'true'
+                    self.logger.info(f"Manually setting holiday for Today, as now tomorrow as just turned Midnight")
+                elif self.is_holiday_tomorrow_manual == "false":
+                    self.logger.debug(f"Manually setting holiday to False for today, as tomorrow was forced to False.")
+                    today_holiday = False
+                    self.is_holiday_tomorrow_manual = "default"
+                    self.is_holiday_today_manual = "false"
+                    self.pluginPrefs['holiday_tomorrow'] = "default"
+                    self.pluginPrefs['holiday_today'] = "false"
+                    self.logger.info(f"Manually setting holiday to False for Today, as now tomorrow as just turned Midnight")
+
+            else:
+                ## if called at startup, not midnight
+                if self.is_holiday_tomorrow_manual == "default":
+                    ## Library holidays hold do nothing
+                    pass
+                elif self.is_holiday_tomorrow_manual == "true":
+                    ## Manually set tomorrow to holiday
+                    self.logger.info(f"Manually setting tomorrow to Holiday.")
+                    tomorrow_holiday = True
+                elif self.is_holiday_tomorrow_manual == "false":
+                    self.logger.info(f"Manually setting tomorrow to not being a Holiday")
+                    tomorrow_holiday = False
+                if self.is_holiday_today_manual == "default":
+                    pass
+                elif self.is_holiday_today_manual == "true":
+                    self.logger.info("Manually setting today to be holiday")
+                    today_holiday = True
+                elif self.is_holiday_today_manual == "false":
+                    self.logger.info("Manually seting today to not be holiday")
+                    today_holiday = False
+
+            self.updateVar("Holiday_Today", today_holiday, True)
+            self.updateVar("Holiday_Tomorrow", tomorrow_holiday, True)
+            if today_holiday_name != None:
+                self.updateVar("Holiday_Today_name", today_holiday_name, False)
+            else:
+                self.updateVar("Holiday_Today_name", "", False)
             self.logger.info(u"{0:=^160}".format(" Variables Updated  "))
         except:
             self.logger.info("Error updating Holiday.  Please check selected countries/regions")
@@ -323,7 +450,7 @@ class Plugin(indigo.PluginBase):
 
             if self.selected_country == "":
                 self.logger.debug("Select Country first")
-                return ("No Country Selected", "No Country Selected")
+                return [("No Country Selected", "No Country Selected")]
 
             lang_list = []
             lang_list.append(("Default","Default" ) )
@@ -353,7 +480,7 @@ class Plugin(indigo.PluginBase):
 
             if self.selected_country == "":
                 self.logger.debug("Select Country first")
-                return ("No Country Selected", "No Country Selected")
+                return [("No Country Selected", "No Country Selected")]
 
             current_datetime = datetime.datetime.now()
             current_year = current_datetime.year
@@ -372,7 +499,7 @@ class Plugin(indigo.PluginBase):
             self.logger.debug(f"Region_list_Generator {valuesDict=}")
             if self.selected_country == "":
                 self.logger.debug("Select Country first")
-                return ("No Country Selected", "No Country Selected")
+                return [("No Country Selected", "No Country Selected")]
             region_list = []
             region_list.append(("None","No Region" ) )
             list_codes = holidays.utils.list_supported_countries(include_aliases=False)
@@ -457,9 +584,9 @@ class Plugin(indigo.PluginBase):
             self.logger.debug(u"logLevel = " + str(self.logLevel))
             self.logger.debug(u"User prefs saved.")
             self.logger.debug(u"Debugging on (Level: {0})".format(self.debugLevel))
-
+            self.is_holiday_tomorrow = valuesDict.get("holiday_tomorrow", False)
             self.debug1 = valuesDict.get('debug1', False)
 
             if self.selected_country !="":
-                self.update_holidays()
+                self.update_holidays(False)
         return True

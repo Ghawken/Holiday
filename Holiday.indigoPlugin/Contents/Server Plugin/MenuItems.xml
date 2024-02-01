@@ -4,4 +4,8 @@
         <Name>Log all Holidays</Name>
         <CallbackMethod>show_holidays</CallbackMethod>
     </MenuItem>
+    <!-- MenuItem id="midnight_reset" hidden="true">
+        <Name>Run midnight reset</Name>
+        <CallbackMethod>midnight_reset</CallbackMethod>
+    </MenuItem-->
 </MenuItems>
