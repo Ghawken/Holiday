@@ -9,6 +9,9 @@ It basically is a wrapper for the python-holidays library which collates this in
 see here:
 https://pypi.org/project/holidays/
 
+The plugin will automatically update the holidays library when it is restarted.  The holidays library has multiple, multiple updates every few days...
+
+
 ## Install
 
 Only compatible with Indigo 2023.2 - as it can now download the 2 libraries needed - one of which is obviously the holidays package
